@@ -1,0 +1,77 @@
+<DOCTYPE html 
+Programa: Movimentação de imagens
+Nome: Ana Clara - Nº: 1 - Turma: 2B.
+Nome: Maria Eduarda - Nº: 23.
+DESCRIÇÃO: Este programa, mostra 2 círculos se movimentando em direção um ao outro no canvas!.>
+
+
+    <html lang="pt-BR">
+
+    <head>
+        <title>Imagem</title>
+        <meta charset="UTF-8">
+        <style>
+            canvas {
+                border: 1px solid #d3d3d3;
+                background-color: "white";
+            }
+        </style>
+        <script>	
+
+            var blueGamePiece, yellowGamePiece;
+
+            function startGame() {
+                yellowGamePiece = new component(40, "yellow",50, 50);
+                blueGamePiece = new component(40, "blue", 440, 230);
+                myGameArea.start();
+            }
+
+            var myGameArea = {
+                canvas: document.createElement("canvas"),
+                start: function () {
+                    this.canvas.width = 480;
+                    this.canvas.height = 270;
+                    this.context = this.canvas.getContext("2d");
+                    document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+                    this.interval
+                        = setInterval(updateGameArea, 20);
+                },
+                clear: function () {
+                    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                }
+            }
+			
+			function component(radius, color, x, y) {
+				this.radius = radius;
+				this.x = x;
+				this.y = y;
+				this.update = function () {
+					ctx = myGameArea.context;
+					ctx.fillStyle = color;
+					ctx.beginPath();
+					ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+					ctx.fill();
+				}
+			}
+
+            function updateGameArea() {
+                myGameArea.clear();
+				
+                yellowGamePiece.update();
+                yellowGamePiece.x += 1;
+				yellowGamePiece.y += 0.46;
+				
+                blueGamePiece.update();
+                blueGamePiece.x -= 1;
+                blueGamePiece.y -= 0.46;
+            }
+        </script>
+    </head>
+
+
+    <body onload="startGame();">
+    </body>
+
+
+    </html>
