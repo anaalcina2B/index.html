@@ -1,77 +1,129 @@
-<DOCTYPE html 
-Programa: Movimentação de imagens
+<!DOCTYPE html>
 Nome: Ana Clara - Nº: 1 - Turma: 2B.
-Nome: Maria Eduarda - Nº: 23.
-DESCRIÇÃO: Este programa, mostra 2 círculos se movimentando em direção um ao outro no canvas!.>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo de Colisão</title>
+  <style>
+    body { display: flex; flex-direction: column; align-items: center; }
+    canvas { border: 1px solid black; background-color: #f0f0f0; }
+    .controls { display: flex; justify-content: space-around; width: 100%; margin-top: 10px; }
+    .player-controls { display: flex; flex-direction: column; }
+    button { margin: 2px; }
+  </style>
+</head>
+<body>
+  <h1>Jogo de Colisão</h1>
+  <canvas id="gameCanvas" width="500" height="300"></canvas>
+  <div class="controls">
+    <div class="player-controls">
+      <h3>Controles do Jogador 1 (A, S, D, W)</h3>
+      <button id="left1">Esquerda</button>
+      <button id="up1">Cima</button>
+      <button id="down1">Baixo</button>
+      <button id="right1">Direita</button>
+    </div>
+    <div class="player-controls">
+      <h3>Controles do Jogador 2 (Setas)</h3>
+      <button id="left2">Esquerda</button>
+      <button id="up2">Cima</button>
+      <button id="down2">Baixo</button>
+      <button id="right2">Direita</button>
+    </div>
+  </div>
 
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
 
-    <html lang="pt-BR">
+    const player1 = { x: 50, y: 50, size: 30, color: 'blue', dx: 0, dy: 0 };
+    const player2 = { x: 400, y: 200, size: 30, color: 'red', dx: 0, dy: 0 };
+    let gameRunning = true;
 
-    <head>
-        <title>Imagem</title>
-        <meta charset="UTF-8">
-        <style>
-            canvas {
-                border: 1px solid #d3d3d3;
-                background-color: "white";
-            }
-        </style>
-        <script>	
+    function drawPlayer(player) {
+      ctx.fillStyle = player.color;
+      ctx.fillRect(player.x, player.y, player.size, player.size);
+    }
 
-            var blueGamePiece, yellowGamePiece;
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
 
-            function startGame() {
-                yellowGamePiece = new component(40, "yellow",50, 50);
-                blueGamePiece = new component(40, "blue", 440, 230);
-                myGameArea.start();
-            }
+    function detectCollision() {
+      if (player1.x < player2.x + player2.size &&
+          player1.x + player1.size > player2.x &&
+          player1.y < player2.y + player2.size &&
+          player1.y + player1.size > player2.y) {
+        alert("COLISÃO DETECTADA");
+        gameRunning = false;
+      }
+    }
 
-            var myGameArea = {
-                canvas: document.createElement("canvas"),
-                start: function () {
-                    this.canvas.width = 480;
-                    this.canvas.height = 270;
-                    this.context = this.canvas.getContext("2d");
-                    document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-                    this.interval
-                        = setInterval(updateGameArea, 20);
-                },
-                clear: function () {
-                    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    function updatePlayerPosition(player) {
+      if (gameRunning) {
+        player.x += player.dx;
+        player.y += player.dy;
+        player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
+        player.y = Math.max(0, Math.min(canvas.height - player.size, player.y));
+      }
+    }
 
-                }
-            }
-			
-			function component(radius, color, x, y) {
-				this.radius = radius;
-				this.x = x;
-				this.y = y;
-				this.update = function () {
-					ctx = myGameArea.context;
-					ctx.fillStyle = color;
-					ctx.beginPath();
-					ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-					ctx.fill();
-				}
-			}
+    function gameLoop() {
+      clearCanvas();
+      updatePlayerPosition(player1);
+      updatePlayerPosition(player2);
+      detectCollision();
+      drawPlayer(player1);
+      drawPlayer(player2);
+      if (gameRunning) requestAnimationFrame(gameLoop);
+    }
 
-            function updateGameArea() {
-                myGameArea.clear();
-				
-                yellowGamePiece.update();
-                yellowGamePiece.x += 1;
-				yellowGamePiece.y += 0.46;
-				
-                blueGamePiece.update();
-                blueGamePiece.x -= 1;
-                blueGamePiece.y -= 0.46;
-            }
-        </script>
-    </head>
+    function movePlayer(player, dx, dy) {
+      player.dx = dx;
+      player.dy = dy;
+    }
 
+    function stopPlayer(player) {
+      player.dx = 0;
+      player.dy = 0;
+    }
 
-    <body onload="startGame();">
-    </body>
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'a') movePlayer(player1, -2, 0);
+      if (e.key === 'd') movePlayer(player1, 2, 0);
+      if (e.key === 'w') movePlayer(player1, 0, -2);
+      if (e.key === 's') movePlayer(player1, 0, 2);
+      if (e.key === 'ArrowLeft') movePlayer(player2, -2, 0);
+      if (e.key === 'ArrowRight') movePlayer(player2, 2, 0);
+      if (e.key === 'ArrowUp') movePlayer(player2, 0, -2);
+      if (e.key === 'ArrowDown') movePlayer(player2, 0, 2);
+    });
 
+    document.addEventListener('keyup', (e) => {
+      if (['a', 'd', 'w', 's'].includes(e.key)) stopPlayer(player1);
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) stopPlayer(player2);
+    });
 
-    </html>
+    document.getElementById('left1').onmousedown = () => movePlayer(player1, -2, 0);
+    document.getElementById('right1').onmousedown = () => movePlayer(player1, 2, 0);
+    document.getElementById('up1').onmousedown = () => movePlayer(player1, 0, -2);
+    document.getElementById('down1').onmousedown = () => movePlayer(player1, 0, 2);
+    document.getElementById('left2').onmousedown = () => movePlayer(player2, -2, 0);
+    document.getElementById('right2').onmousedown = () => movePlayer(player2, 2, 0);
+    document.getElementById('up2').onmousedown = () => movePlayer(player2, 0, -2);
+    document.getElementById('down2').onmousedown = () => movePlayer(player2, 0, 2);
+
+    document.getElementById('left1').onmouseup = () => stopPlayer(player1);
+    document.getElementById('right1').onmouseup = () => stopPlayer(player1);
+    document.getElementById('up1').onmouseup = () => stopPlayer(player1);
+    document.getElementById('down1').onmouseup = () => stopPlayer(player1);
+    document.getElementById('left2').onmouseup = () => stopPlayer(player2);
+    document.getElementById('right2').onmouseup = () => stopPlayer(player2);
+    document.getElementById('up2').onmouseup = () => stopPlayer(player2);
+    document.getElementById('down2').onmouseup = () => stopPlayer(player2);
+
+    gameLoop();
+  </script>
+</body>
+</html>
